@@ -1,0 +1,46 @@
+package com.stella.board.post;
+
+import com.stella.board.post.dto.PostRequestDto;
+import com.stella.board.post.dto.PostResponseDto;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/board/posts")
+public class PostController {
+    private final PostService postService;
+
+    public PostController(PostService postService) {
+        this.postService = postService;
+    }
+
+    @PostMapping
+    public PostResponseDto post(@RequestBody PostRequestDto postRequestDto) {
+        return postService.createPost(postRequestDto);
+    }
+
+    @GetMapping
+    public List<Post> getAllPosts() {
+        return postService.findAllPosts();
+    }
+
+    @GetMapping("/{postId}")
+    public PostResponseDto getOnePost(@PathVariable Long postId) {
+        return postService.findOnePost(postId);
+    }
+
+    @PutMapping("/{postId}")
+    public PostResponseDto updatePost(@PathVariable Long postId,@RequestBody PostRequestDto postRequestDto) {
+        return postService.updatePost(postId, postRequestDto);
+    }
+
+    @DeleteMapping("/{postId}")
+    public void deletePost(@PathVariable Long postId) {
+        postService.deletePost(postId);
+    }
+
+
+
+}
