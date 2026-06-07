@@ -1,3 +1,27 @@
 spring:
   application:
     name: board
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/board_dev
+    username: root
+    password:
+
+    jpa:
+      show-sql: true
+      database-platform: org.hibernate.dialect.MySQL8Dialect
+      database: mysql
+      hibernate:
+        ddl-auto: update
+
+    profiles:
+      active: development
+
+  logging:
+    level:
+      org.hibernate.SQL: debug
+
+jwt:
+  secret: 5Lsab0N9OGsYqLaUn6hWLYiBw19br4MGJszvMLFWVi8C+ZVgTU8AUzI1jMDtTTQTb/5fZ9/ZkEoNpx86Hl732w==
+  access-token-exp-seconds: 300
+  refresh-token-exp-seconds: 12096000
