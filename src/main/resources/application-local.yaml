@@ -22,6 +22,6 @@ spring:
       org.hibernate.SQL: debug
 
 jwt:
-  secret: 5Lsab0N9OGsYqLaUn6hWLYiBw19br4MGJszvMLFWVi8C+ZVgTU8AUzI1jMDtTTQTb/5fZ9/ZkEoNpx86Hl732w==
+  secret: 7pOLQVcGhoInypnDp+nv3FP8hkZtP53AyE+Xg9X1a5fgnIwp8NrYkWawGPd2sQwz2Kun5hC4/CpKLvlEss1+LA==
   access-token-exp-seconds: 300
   refresh-token-exp-seconds: 12096000
