@@ -37,4 +37,4 @@ out/
 .vscode/
 
 ### application ###
-src/resources/application.yaml
+src/main/resources/application-local.yaml
