@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+// 교재에 있던 코드
 @Getter
 @NoArgsConstructor
 public class LoginRequest {

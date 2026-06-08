@@ -3,6 +3,7 @@ package com.stella.board.global.response;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+//controller에 나와서 만들게 됨. 선언된 속성, 생성자의 파라미터도 컨트롤러 기준으로 작성.
 @Getter
 @NoArgsConstructor
 public class ApiResponse<T> {

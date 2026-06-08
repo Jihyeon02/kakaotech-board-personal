@@ -14,6 +14,7 @@ import java.util.stream.IntStream;
 @Configuration
 @Profile("development")
 @RequiredArgsConstructor
+// test용 config 파일 -> AI에게 부탁해서 더미데이터 들어가게끔
 public class SeedConfig {
 
     private final UserRepository userRepository;

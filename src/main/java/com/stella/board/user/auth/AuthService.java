@@ -22,6 +22,8 @@ public class AuthService {
     // 로그인
     @Transactional
     public LoginResult login(LoginRequest loginRequest) {
+
+        // 모든 AuthorizedException마다 오류가 떴음 -> 해당 클래스가 존재하지 않았으니까 그래서 만듦 global/exception/AuthorizedException.java
         User user = userRepository.findByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new AuthorizedException("INVALID_CREDENTIALS"));
 
@@ -30,17 +32,17 @@ public class AuthService {
         }
 
         String accessToken = jwtProvider.createAccessToken(
-                user.getId(),
+                user.getUser_id(),
                 user.getEmail(),
                 user.getNickname()
         );
 
-        String refreshToken = jwtProvider.createRefreshToken(user.getId());
-        refreshTokenRepository.deleteByUserId(user.getId());
+        String refreshToken = jwtProvider.createRefreshToken(user.getUser_id());
+        refreshTokenRepository.deleteByUserId(user.getUser_id());
         refreshTokenRepository.save(
                 new RefreshToken(
                         refreshToken,
-                        user.getId(),
+                        user.getUser_id(),
                         LocalDateTime.now().plusDays(14)
                 )
         );
@@ -65,18 +67,18 @@ public class AuthService {
                 .orElseThrow(() -> new AuthorizedException("UNAUTHORIZED"));
 
         String newAccessToken = jwtProvider.createAccessToken(
-                user.getId(),
+                user.getUser_id(),
                 user.getEmail(),
                 user.getNickname()
         );
 
         // Refresh Token 회전 (Rotation)
-        String newRefreshToken = jwtProvider.createRefreshToken(user.getId());
+        String newRefreshToken = jwtProvider.createRefreshToken(user.getUser_id());
         refreshTokenRepository.delete(saved);
         refreshTokenRepository.save(
                 new RefreshToken(
                         newRefreshToken,
-                        user.getId(),
+                        user.getUser_id(),
                         LocalDateTime.now().plusDays(14)
                 )
         );

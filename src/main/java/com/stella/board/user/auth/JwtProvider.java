@@ -15,7 +15,7 @@ import java.security.Key;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
-
+// 교재에 있던 코드
 @Component
 @RequiredArgsConstructor
 public class JwtProvider {

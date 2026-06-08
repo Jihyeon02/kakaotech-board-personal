@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+// 교재에 있던 코드
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

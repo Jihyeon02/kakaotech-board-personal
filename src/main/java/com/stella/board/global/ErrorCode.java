@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
+// 예외처리를 위해 ErrorCode 정의하기 위해 만든 클래스
 public enum ErrorCode {
     // Test Error
     TEST_ERROR(10000, HttpStatus.BAD_REQUEST, "테스트 에러입니다."),

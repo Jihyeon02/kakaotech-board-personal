@@ -13,7 +13,7 @@ import lombok.Getter;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long user_id;
 
     // api 설계 대로 private로 필드 선언 -> 사진 관련된 설계는 뒤로 빼서 나중에 넣을 예정
     @NotNull
