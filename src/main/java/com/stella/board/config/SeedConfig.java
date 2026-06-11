@@ -31,7 +31,7 @@ public class SeedConfig {
         // tester1 ~ tester10 계정 더미 데이터
         IntStream.rangeClosed(1, 10).forEach(i -> {
             String password = "12341234aS!" + i;
-            User user = new User("tester" + i + "@adapterz.kr", password, "tester" + i);
+            User user = new User(null,"tester" + i + "@adapterz.kr", "tester" + i,"a",null);
             userRepository.save(user);
         });
     }
