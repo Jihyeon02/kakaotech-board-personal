@@ -18,20 +18,16 @@ public class User {
 
     // api 설계 대로 private로 필드 선언 -> 사진 관련된 설계는 뒤로 빼서 나중에 넣을 예정
     @NotNull @Column(unique = true)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String email;
 
     @Size(min = 8, max = 20) @NotNull
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // 비번 수정시 DB에 바로 반영되게끔
     private String password;
 
-    @Size(max = 10) @NotNull @Column(unique = true) // 닉네임 수정시 DB에 바로 반영되게끔
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Size(max = 10) @NotNull @Column(unique = true)
     private String nickname;
 
     @Nullable
-    @Column(name = "profile_image_url") // 닉네임 수정시 DB에 바로 반영되게끔
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "profile_image_url")
     private String profile_imageUrl;
 
 

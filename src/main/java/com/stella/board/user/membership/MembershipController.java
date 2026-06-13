@@ -12,17 +12,14 @@ import java.util.List;
 @RequestMapping("/users/members")
 public class MembershipController {
     private final MembershipService membershipService;
-    private final User user;
 
-    public MembershipController(MembershipService membershipService, User user) {
+    public MembershipController(MembershipService membershipService) {
         this.membershipService = membershipService;
-        this.user = user;
     }
 
     @PostMapping
-    public MembershipDto createMembership(@RequestParam  MembershipReqDto membershipReqDto) {
-        membershipService.save(membershipReqDto);
-        return MembershipDto.of(user);
+    public MembershipDto createMembership(@RequestBody  MembershipReqDto membershipReqDto) {
+        return membershipService.save(membershipReqDto);
     }
     @DeleteMapping("/{userId}")
     public Long DeleteMembership(@PathVariable Long userId) {
@@ -30,13 +27,13 @@ public class MembershipController {
     }
 
     @PutMapping("/{userId}")
-    public MembershipDto UpdateMembership(@PathVariable Long userId, @RequestParam MembershipUpdateReq membershipUpdateReq) {
+    public MembershipDto UpdateMembership(@PathVariable Long userId, @RequestBody MembershipUpdateReq membershipUpdateReq) {
         MembershipDto tempDto = membershipService.updateNickname(userId, membershipUpdateReq);
         //프로필사진 관련 코드 추가 예정
         return tempDto;
     }
 
-    @GetMapping
+    @GetMapping("/{userId}")
     public MembershipDto getMembership(@PathVariable Long userId) {
         return membershipService.getMembership(userId);
     }

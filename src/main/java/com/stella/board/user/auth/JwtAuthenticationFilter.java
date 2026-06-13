@@ -22,7 +22,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String[] WHITE_LIST = {
             "/users",
             "/users/login",
-            "/users/token/refresh"
+            "/users/token/refresh",
+            "/users/members",
+            "/posts"
     };
 
     @Override
@@ -38,6 +40,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
 
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+
+
 
         // 토큰이 없거나 형식이 틀리면 401
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {

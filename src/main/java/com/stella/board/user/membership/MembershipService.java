@@ -21,12 +21,12 @@ public class MembershipService {
     @Transactional
     // 회원가입 - save
     public MembershipDto save(MembershipReqDto reqDto) {
-        User user = new User(null, reqDto.password(), reqDto.nickname(), reqDto.nickname(),
+        User user = new User(null, reqDto.email(), reqDto.password(), reqDto.nickname(),
                 reqDto.profile_imageUrl());
 
-        userRepository.save(user);
+        User new_user = userRepository.save(user);
 
-        return MembershipDto.of(user);
+        return MembershipDto.of(new_user);
     }
 
     @Transactional
