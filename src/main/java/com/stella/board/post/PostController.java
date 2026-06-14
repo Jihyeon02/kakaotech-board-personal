@@ -24,9 +24,8 @@ public class PostController {
     }
 
     @GetMapping
-    public WindowResponse getAllLists(@PathVariable Long last_post_id) {
-
-        return postService.findAllPosts(last_post_id);
+    public WindowResponse getAllLists(@RequestParam(required = false) Long lastPostId) {
+        return postService.findAllPosts(lastPostId);
     }
 
     @GetMapping("/{postId}")

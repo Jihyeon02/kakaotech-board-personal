@@ -45,8 +45,8 @@ public class PostService {
             last_post_id = postlistRepositoryImpl.findLastPostId();
         }
         // 메인 로직
-        KeysetScrollPosition position = ScrollPosition.forward(Map.of("id", last_post_id));
-        Window<Post> window = postlistRepository.findFirst10ByOrderByIdDesc(position);
+        KeysetScrollPosition position = ScrollPosition.forward(Map.of("postId", last_post_id));
+        Window<Post> window = postlistRepository.findFirst10ByOrderByPostIdDesc(position);
         List<Post> posts = window.getContent();
 
         boolean hasNext = window.hasNext();
@@ -75,7 +75,7 @@ public class PostService {
     public PostResponseDto updatePost(Long postId, PostRequestDto postRequestDto) {
         Optional<Post> oldPost = postRepository.findById(postId);
         //postRequestDto -> Post
-        Post post = new Post(postId, oldPost.get().getUser(), postRequestDto.getTitle(),postRequestDto.getImages(), postRequestDto.getContent(), oldPost.get().getCreatedTime());
+        Post post = new Post(postId, oldPost.get().getUserId(), postRequestDto.getTitle(),postRequestDto.getImages(), postRequestDto.getContent(), oldPost.get().getCreatedTime());
         return PostResponseDto.of(postRepository.save(post));
     }
     // 삭제

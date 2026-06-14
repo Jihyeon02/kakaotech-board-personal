@@ -5,8 +5,10 @@ import com.stella.board.post.Post;
 import com.stella.board.post.QPost;
 import org.springframework.data.domain.KeysetScrollPosition;
 import org.springframework.data.domain.Window;
+import org.springframework.stereotype.Repository;
 
-public class PostlistRepositoryImpl implements PostlistRepository {
+@Repository
+public class PostlistRepositoryImpl implements PostlistRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
@@ -14,15 +16,11 @@ public class PostlistRepositoryImpl implements PostlistRepository {
         this.queryFactory = queryFactory;
     }
 
+    @Override
     public Long findLastPostId() {
         return queryFactory
                 .select(QPost.post.postId.max())
                 .from(QPost.post)
                 .fetchOne();
-    }
-
-    @Override
-    public Window<Post> findFirst10ByOrderByIdDesc(KeysetScrollPosition position) {
-        return null;
     }
 }
