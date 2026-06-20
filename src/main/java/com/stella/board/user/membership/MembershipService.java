@@ -18,6 +18,7 @@ public class MembershipService {
         this.userRepository = userRepository;
     }
 
+
     @Transactional
     // 회원가입 - save
     public MembershipDto save(MembershipReqDto reqDto) {

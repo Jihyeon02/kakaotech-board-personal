@@ -4,13 +4,16 @@ import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 // 매번 저 변수들 바뀌거나 생성될때마다  바로 DB에 쿼리를 쏴서 데이터가 바껴야하는데 이게 성능관점에서 ㄱㅊ을지 고민해봐야할 것 같음.
 
 
 @Entity(name = "users")
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

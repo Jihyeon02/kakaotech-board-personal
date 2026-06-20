@@ -1,14 +1,13 @@
 package com.stella.board.post;
 
-import com.stella.board.global.exception.AuthorizedException;
 import com.stella.board.post.dto.PostRequestDto;
 import com.stella.board.post.dto.PostResponseDto;
 import com.stella.board.post.dto.WindowResponse;
 import com.stella.board.post.repository.PostRepository;
 import com.stella.board.post.repository.PostlistRepository;
 import com.stella.board.post.repository.PostlistRepositoryImpl;
-import com.stella.board.user.User;
 import com.stella.board.user.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.KeysetScrollPosition;
 import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Window;
@@ -64,6 +63,7 @@ public class PostService {
     }
 
     // 작성
+    @Transactional
     public PostResponseDto createPost(PostRequestDto postRequestDto) {
         Long userId = postRequestDto.getUserId();
         Post post = new Post(null, userId, postRequestDto.getTitle(),postRequestDto.getImages(), postRequestDto.getContent(), LocalDateTime.now());
@@ -72,6 +72,7 @@ public class PostService {
     }
 
     // 수정
+    @Transactional
     public PostResponseDto updatePost(Long postId, PostRequestDto postRequestDto) {
         Optional<Post> oldPost = postRepository.findById(postId);
         //postRequestDto -> Post
