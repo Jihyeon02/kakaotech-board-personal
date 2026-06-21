@@ -20,16 +20,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
 
     private static final String[] WHITE_LIST = {
+            "/v1/*",
+            "/v1/users/*",
             "/users",
             "/users/login",
             "/users/token/refresh",
             "/users/members",
-            "/posts"
+            "/v1/users/members",        // 추가
+            "/v1/users/email/check",    // 추가
+            "/v1/users/nickname/check", // 추가
+            "/v1/auth/check",
+            "/posts",
     };
 
     @Override
     protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
-        return PatternMatchUtils.simpleMatch(WHITE_LIST, request.getRequestURI());
+        String uri = request.getRequestURI(); // 쿼리스트링 제외한 경로만
+        return PatternMatchUtils.simpleMatch(WHITE_LIST, uri);
     }
 
     @Override

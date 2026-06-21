@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/users/members")
+@RequestMapping("/v1/users/members")
 public class MembershipController {
     private final MembershipService membershipService;
 
