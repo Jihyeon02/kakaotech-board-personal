@@ -35,8 +35,8 @@ jobs:
 
       - name: Copy application.yml into runner
         run: |
-          touch ./src/main/resources/application.yml
-          echo "${{secrets.APPLICATION_YML}}" > ./src/main/resources/application.yml
+          touch ./src/main/resources/application-local.yml
+          echo "${{secrets.APPLICATION_YML}}" > ./src/main/resources/application-local.yml
 
       - name: Grant Execute Permission For Gradlew & Build gradle # Gradle 권한 부여
         run: |
