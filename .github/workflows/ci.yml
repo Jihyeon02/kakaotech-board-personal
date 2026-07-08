@@ -17,6 +17,16 @@ jobs:
   spring-build:
     runs-on: ubuntu-latest #latest라 변경해야할 것 같음 EC2 버전보고
 
+
+    services:
+      mysql:
+        image: mysql:9.6.0
+        env:
+          MYSQL_ROOT_PASSWORD:
+          MYSQL_DATABASE: test_db
+        ports:
+          - 3306:3306
+
     steps:
       - name: repository checkout #레포지토리에서 파일을 불러오고 커밋을 가져오는 역할
         uses: actions/checkout@v4
