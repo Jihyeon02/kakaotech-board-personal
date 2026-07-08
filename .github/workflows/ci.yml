@@ -1,0 +1,45 @@
+# 선택 사항 - 워크 플로우 이름
+name: Java CI with Gradle
+
+# 선택 사항 - "Actions" tab에 보여질 이름
+run-name: ${{ github.actor }} is learning GitHub Actions
+
+# 트리거를 지정합니다.
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    branches:
+      - 'main'
+
+jobs:
+  spring-build:
+    runs-on: ubuntu-latest #latest라 변경해야할 것 같음 EC2 버전보고
+
+    steps:
+      - name: repository checkout #레포지토리에서 파일을 불러오고 커밋을 가져오는 역할
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '25' # v5는 자바 21,25도 지원 이거에 따라 지원되는 자바 버전이 달라짐
+
+      - name: Setup Gradle # Gradle 세팅
+        uses: gradle/gradle-build-action@v6
+
+      - name: Build with Gradle # Gradle 빌드
+        run: ./gradlew build
+
+      - name: Copy application.yml into runner
+        run: |
+          touch ./src/main/resources/application.yml
+          echo "${{secrets.APPLICATION_YML}}" > ./src/main/resources/application.yml
+
+      - name: Grant Execute Permission For Gradlew & Build gradle # Gradle 권한 부여
+        run: |
+          cd ./src
+          chmod +x gradlew
+          ./gradlew build
