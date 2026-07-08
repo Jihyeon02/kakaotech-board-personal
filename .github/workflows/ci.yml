@@ -44,12 +44,6 @@ jobs:
         with:
           gradle-version: '9.5.1'
 
-
-
-
-      - name: Build with Gradle # Gradle 빌드
-        run: ./gradlew build
-
       - name: Copy application.yml into runner
         run: |
           touch ./src/main/resources/application-local.yml
@@ -60,3 +54,6 @@ jobs:
           cd ./src
           chmod +x gradlew
           ./gradlew build
+
+      - name: Build with Gradle # Gradle 빌드
+        run: ./gradlew build
