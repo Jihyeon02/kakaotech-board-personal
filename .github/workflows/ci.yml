@@ -28,7 +28,10 @@ jobs:
           java-version: '25' # v5는 자바 21,25도 지원 이거에 따라 지원되는 자바 버전이 달라짐
 
       - name: Setup Gradle # Gradle 세팅
-        uses: gradle/gradle-build-action@v5
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.5.1'
+
 
       - name: Build with Gradle # Gradle 빌드
         run: ./gradlew build
