@@ -51,7 +51,6 @@ jobs:
 
       - name: Grant Execute Permission For Gradlew & Build gradle # Gradle 권한 부여
         run: |
-          cd ./src
           chmod +x gradlew
           ./gradlew build
 
