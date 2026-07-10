@@ -1,3 +1,18 @@
+# 워크 플로우 이름
+name: Java CI with Gradle
+# Action tab에 보여질 이름
+run-name: ${{ github.actor }} is learning GitHub Actions
+
+# 트리거를 지정
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
 jobs:
   build:
     runs-on: ubuntu-latest
