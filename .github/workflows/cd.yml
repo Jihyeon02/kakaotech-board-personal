@@ -18,7 +18,7 @@ permissions:
 env:
   IMAGE_NAME: ${{ secrets.DOCKERHUB_IMAGE }}
   IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
-  CONTAINER_NAME: backend
+  CONTAINER_NAME: board-backend
 
 jobs:
   deploy:
@@ -66,38 +66,6 @@ jobs:
             exit 1
           }
 
-      - name: Deploy container to EC2
-        uses: appleboy/ssh-action@v1.2.0
-        env:
-          IMAGE_NAME: ${{ secrets.DOCKERHUB_IMAGE }}
-          IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
-          CONTAINER_NAME: backend
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
-          envs: IMAGE_NAME,IMAGE_TAG,CONTAINER_NAME,DOCKERHUB_USERNAME,DOCKERHUB_TOKEN
-
-          script: |
-            set -euo pipefail
-
-            test -n "$DOCKERHUB_USERNAME" || {
-              echo "Remote DOCKERHUB_USERNAME is empty"
-              exit 1
-            }
-
-            test -n "$DOCKERHUB_TOKEN" || {
-              echo "Remote DOCKERHUB_TOKEN is empty"
-              exit 1
-            }
-
-            printf '%s' "$DOCKERHUB_TOKEN" |
-              docker login \
-                --username "$DOCKERHUB_USERNAME" \
-                --password-stdin
 
       # Docker Hub 로그인
       - name: Docker Hub login
@@ -138,12 +106,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
 
-          envs: >
-            IMAGE_NAME,
-            IMAGE_TAG,
-            CONTAINER_NAME,
-            DOCKERHUB_USERNAME,
-            DOCKERHUB_TOKEN
+          envs: IMAGE_NAME,IMAGE_TAG,CONTAINER_NAME,DOCKERHUB_USERNAME,DOCKERHUB_TOKEN
 
           script_stop: true
 
