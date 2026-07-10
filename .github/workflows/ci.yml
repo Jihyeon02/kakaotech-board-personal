@@ -1,45 +1,76 @@
-# 선택 사항 - 워크 플로우 이름
 name: Java CI with Gradle
 
-# 선택 사항 - "Actions" tab에 보여질 이름
 run-name: ${{ github.actor }} is learning GitHub Actions
 
-# 트리거를 지정합니다.
 on:
   push:
     branches:
-      - 'main'
+      - main
+
   pull_request:
     branches:
-      - 'main'
+      - main
 
 jobs:
-  spring-build:
-    runs-on: ubuntu-latest #latest라 변경해야할 것 같음 EC2 버전보고
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:9.6.0
+
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.CI_DB_PASSWORD }}
+          MYSQL_DATABASE: test_db
+
+        ports:
+          - 3306:3306
+
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
 
     steps:
-      - name: repository checkout #레포지토리에서 파일을 불러오고 커밋을 가져오는 역할
+      - name: Repository checkout
         uses: actions/checkout@v4
 
       - name: Set up JDK 25
         uses: actions/setup-java@v5
         with:
-          distribution: 'temurin'
-          java-version: '25' # v5는 자바 21,25도 지원 이거에 따라 지원되는 자바 버전이 달라짐
+          distribution: temurin
+          java-version: "25"
 
-      - name: Setup Gradle # Gradle 세팅
-        uses: gradle/gradle-build-action@v5
-
-      - name: Build with Gradle # Gradle 빌드
-        run: ./gradlew build
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Copy application.yml into runner
         run: |
-          touch ./src/main/resources/application.yml
-          echo "${{secrets.APPLICATION_YML}}" > ./src/main/resources/application.yml
+          mkdir -p src/main/resources
+          printf '%s' '${{ secrets.APPLICATION_YML }}' \
+            > src/main/resources/application-local.yml
 
-      - name: Grant Execute Permission For Gradlew & Build gradle # Gradle 권한 부여
+      - name: Grant permission and build
+        env:
+          SPRING_DATASOURCE_URL: jdbc:mysql://127.0.0.1:3306/test_db
+          SPRING_DATASOURCE_USERNAME: root
+          SPRING_DATASOURCE_PASSWORD: ${{ secrets.CI_DB_PASSWORD }}
+          SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
+          SPRING_PROFILES_ACTIVE: local
         run: |
-          cd ./src
-          chmod +x gradlew
-          ./gradlew build
+          chmod +x ./gradlew
+          ./gradlew clean build
+
+      - name: Check JAR file
+        run: ls -al build/libs
+
+      - name: Upload backend JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-jar
+          path: |
+            build/libs/*.jar
+            !build/libs/*-plain.jar
+          retention-days: 5
+          if-no-files-found: error
