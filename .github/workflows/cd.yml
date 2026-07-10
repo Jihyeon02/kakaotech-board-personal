@@ -16,13 +16,12 @@ permissions:
   actions: read
 
 env:
-  IMAGE_NAME: ${{ secrets.DOCKERHUB_IMAGE }}
+  IMAGE_NAME: jihyeon02/board-backend
   IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
   CONTAINER_NAME: board-backend
 
 jobs:
   deploy:
-    # CI가 성공했고, pull_request가 아니라 main push로 실행된 경우만 배포
     if: >
       github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.event == 'push' &&
@@ -31,13 +30,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # CI가 실행됐던 정확한 커밋의 Dockerfile을 가져옴
       - name: Repository checkout
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
 
-      # CI Workflow에서 저장한 JAR 다운로드
       - name: Download backend JAR artifact
         uses: actions/download-artifact@v4
         with:
@@ -51,34 +48,16 @@ jobs:
           echo "Downloaded JAR files:"
           ls -al build/libs
 
-      - name: Check secrets
-        env:
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-        run: |
-          test -n "$DOCKERHUB_USERNAME" || {
-            echo "DOCKERHUB_USERNAME is empty"
-            exit 1
-          }
-
-          test -n "$DOCKERHUB_TOKEN" || {
-            echo "DOCKERHUB_TOKEN is empty"
-            exit 1
-          }
-
-
-      # Docker Hub 로그인
+      # 이미지 push를 위해 GitHub Actions Runner에서는 로그인 필요
       - name: Docker Hub login
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          username: jihyeon02
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # Docker Buildx 설정
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # Docker 이미지 빌드 및 Registry Push
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
@@ -91,33 +70,25 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # EC2에 접속해서 새 이미지 배포
+      # Public 이미지는 EC2에서 로그인 없이 pull 가능
       - name: Deploy container to EC2
         uses: appleboy/ssh-action@v1.2.0
+
         env:
           IMAGE_NAME: ${{ env.IMAGE_NAME }}
           IMAGE_TAG: ${{ env.IMAGE_TAG }}
-          CONTAINER_NAME: board-backend
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          CONTAINER_NAME: ${{ env.CONTAINER_NAME }}
 
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
 
-          envs: IMAGE_NAME,IMAGE_TAG,CONTAINER_NAME,DOCKERHUB_USERNAME,DOCKERHUB_TOKEN
-
-          script_stop: true
+          envs: IMAGE_NAME,IMAGE_TAG,CONTAINER_NAME
+          command_timeout: 10m
 
           script: |
-            set -e
-
-            echo "Docker Hub 로그인"
-            echo "$DOCKERHUB_TOKEN" |
-              docker login \
-                -u "$DOCKERHUB_USERNAME" \
-                --password-stdin
+            set -eu
 
             echo "이미지 다운로드: $IMAGE_NAME:$IMAGE_TAG"
             docker pull "$IMAGE_NAME:$IMAGE_TAG"
