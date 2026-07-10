@@ -1,9 +1,7 @@
-# 워크 플로우 이름
 name: Java CI with Gradle
-# Action tab에 보여질 이름
+
 run-name: ${{ github.actor }} is learning GitHub Actions
 
-# 트리거를 지정
 on:
   push:
     branches:
@@ -20,11 +18,14 @@ jobs:
     services:
       mysql:
         image: mysql:9.6.0
+
         env:
           MYSQL_ROOT_PASSWORD: ${{ secrets.CI_DB_PASSWORD }}
           MYSQL_DATABASE: test_db
+
         ports:
           - 3306:3306
+
         options: >-
           --health-cmd="mysqladmin ping -h 127.0.0.1 --silent"
           --health-interval=10s
@@ -62,22 +63,12 @@ jobs:
           ./gradlew clean build
 
       - name: Check JAR file
-        run: |
-          echo "현재 위치"
-          pwd
+        run: ls -al build/libs
 
-          echo "빌드 결과"
-          find build -maxdepth 3 -type f || true
-
-          echo "JAR 목록"
-          ls -al build/libs
-
-      - name: Upload backend JAR
+      - name: Upload backend JAR artifact
         uses: actions/upload-artifact@v4
         with:
           name: backend-jar
-          path: |
-            build/libs/*.jar
-            !build/libs/*-plain.jar
-          if-no-files-found: error
+          path: build/libs/*.jar
           retention-days: 5
+          if-no-files-found: error
