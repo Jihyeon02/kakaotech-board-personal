@@ -69,6 +69,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: backend-jar
-          path: build/libs/*.jar
+          path: |
+            build/libs/*.jar
+            !build/libs/*-plain.jar
           retention-days: 5
           if-no-files-found: error
