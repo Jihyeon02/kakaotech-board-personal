@@ -1,7 +1,9 @@
+# 워크 플로우 이름
 name: Java CI with Gradle
-
+# Action tab에 보여질 이름
 run-name: ${{ github.actor }} is learning GitHub Actions
 
+# 트리거를 지정
 on:
   push:
     branches:
@@ -13,7 +15,7 @@ on:
 
 jobs:
   job1:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # latest라 변경해야할 것 같음 EC2버전 보고
 
     services:
       mysql:
@@ -21,11 +23,11 @@ jobs:
 
         env:
           MYSQL_ROOT_PASSWORD: ${{ secrets.CI_DB_PASSWORD }}
-          MYSQL_DATABASE: test_db
+          MYSQL_DATABASE: test_db # 임시 테스트 용 -> Github 서버가 임시로 Mysql 이미지 받아온 거
 
         ports:
           - 3306:3306
-
+        # MySQL이 완전히 실행될 때까지 대기하는 헬스체크
         options: >-
           --health-cmd="mysqladmin ping -h 127.0.0.1 --silent"
           --health-interval=10s
@@ -33,11 +35,11 @@ jobs:
           --health-retries=10
 
     steps:
-      - name: Repository checkout
+      - name: Repository checkout #레포지토리에서 파일을 불러오고 커밋을 가져오는 역할
         uses: actions/checkout@v4
 
       - name: Set up JDK 25
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v5 # v5는 자바 21,25도 지원 이거에 따라 지원되는 자바 버전이 달라짐
         with:
           distribution: temurin
           java-version: "25"
@@ -50,35 +52,32 @@ jobs:
           mkdir -p ./src/main/resources
           echo '${{ secrets.APPLICATION_YML }}' > ./src/main/resources/application-local.yml
 
-      - name: Grant permission and build
+      - name: Grant permission and build # Gradle 권한 부여 및 실행
         env:
-          SPRING_DATASOURCE_URL: jdbc:mysql://127.0.0.1:3306/test_db
+          SPRING_DATASOURCE_URL: jdbc:mysql://127.0.0.1:3306/test_db # hipervisor 에러 원인 -> DB 연동 문제
           SPRING_DATASOURCE_USERNAME: root
           SPRING_DATASOURCE_PASSWORD: ${{ secrets.CI_DB_PASSWORD }}
           SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
-          SPRING_PROFILES_ACTIVE: local
+          SPRING_PROFILES_ACTIVE: local # application.yml 사용을 위해 지정
         run: |
           chmod +x ./gradlew
           ./gradlew clean build
 
 # 추후 통합테스트 넣을 예정
-  job2:
+  job2: # needs 적용해서 순서 정하기
     needs: job1
     runs-on: ubuntu-latest
 
     steps:
-      - name: Make text_dir
-        run: mkdir -p text_dir
+      - name: Check JAR file
+        run: ls -al build/libs
 
-      - name: Create File
-        run: touch "text_dir/test-$(date '+%H%M%S')-01"
-
-      - name: Check File
-        run: ls -al text_dir/*
-
-      - name: Upload Artifact text_dir
+      - name: Upload backend JAR artifact
         uses: actions/upload-artifact@v4
         with:
-          name: text_dir-artifact
-          path: text_dir/**
+          name: backend-jar
+          path: |
+            build/libs/*.jar
+            !build/libs/*-plain.jar
           retention-days: 5
+          if-no-files-found: error
