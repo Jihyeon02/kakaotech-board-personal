@@ -138,42 +138,23 @@ jobs:
           script: |
             set -eu
 
-            echo "이미지 다운로드: $IMAGE_NAME:$IMAGE_TAG"
-            docker pull "$IMAGE_NAME:$IMAGE_TAG"
+            cd /home/ubuntu/app
 
-            echo "기존 컨테이너 제거"
-            docker rm -f "$CONTAINER_NAME" 2>/dev/null || true
+            export IMAGE_NAME IMAGE_TAG
 
-            echo "새 컨테이너 실행"
-            docker run -d \
-              --name "$CONTAINER_NAME" \
-              --restart unless-stopped \
-              -p 8080:8080 \
-              -v /home/ubuntu/app/application.yml:/app/config/application.yml:ro \
-              -e SPRING_CONFIG_ADDITIONAL_LOCATION=file:/app/config/application.yml \
-              "$IMAGE_NAME:$IMAGE_TAG"
+            docker compose pull springboot
+            docker compose up -d
 
             echo "컨테이너 실행 확인"
             sleep 10
 
-            if ! docker ps \
-              --filter "name=^/${CONTAINER_NAME}$" \
-              --filter "status=running" \
-              --format '{{.Names}}' |
-              grep -Fx "$CONTAINER_NAME"; then
-
-              echo "컨테이너 실행 실패"
-              docker logs "$CONTAINER_NAME" || true
+            if [ -z "$(docker compose ps --status running -q springboot)" ]; then
+              echo "Spring Boot 컨테이너 실행 실패"
+              docker compose logs springboot || true
               exit 1
             fi
 
             echo "사용하지 않는 이미지 정리"
             docker image prune -f
 
-            echo "배포 완료"
-            fi
-
-            echo "사용하지 않는 이미지 정리"
-            docker image prune -f
-
-            echo "배포 완료"
+            echo "배포 완료: $IMAGE_NAME:$IMAGE_TAG"

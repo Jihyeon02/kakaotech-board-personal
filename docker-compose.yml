@@ -9,7 +9,7 @@ services:
 
 
   springboot:
-    image: jihyeon02/board-backend:v0.1.0
+    image: ${IMAGE_NAME}:${IMAGE_TAG}
     restart: always
     depends_on:
       - redis
