@@ -66,18 +66,20 @@ jobs:
           push: true
           tags: |
             ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+            ${{ env.IMAGE_NAME }}:${{ env.IMAGE_SHA_TAG }}
             ${{ env.IMAGE_NAME }}:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+            cache-from: type=gha
+            cache-to: type=gha,mode=max
 
       # Public 이미지는 EC2에서 로그인 없이 pull 가능
       - name: Deploy container to EC2
         uses: appleboy/ssh-action@v1.2.0
 
         env:
-          IMAGE_NAME: ${{ env.IMAGE_NAME }}
-          IMAGE_TAG: ${{ env.IMAGE_TAG }}
-          CONTAINER_NAME: ${{ env.CONTAINER_NAME }}
+          IMAGE_NAME: jihyeon02/board-backend
+          IMAGE_TAG: dev-${{ github.event.workflow_run.run_number }}
+          IMAGE_SHA_TAG: sha-${{ github.event.workflow_run.head_sha }}
+          CONTAINER_NAME: board-backend
 
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -116,10 +118,43 @@ jobs:
 
               echo "컨테이너 실행 실패"
               docker logs "$CONTAINER_NAME" || true
+              exit 1      # Public 이미지는 EC2에서 로그인 없이 pull 가능
+      - name: Deploy container to EC2
+        uses: appleboy/ssh-action@v1.2.0
+
+        env:
+          IMAGE_NAME: ${{ env.IMAGE_NAME }}
+          IMAGE_TAG: ${{ env.IMAGE_TAG }}
+          CONTAINER_NAME: ${{ env.CONTAINER_NAME }}
+
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+
+          envs: IMAGE_NAME,IMAGE_TAG,CONTAINER_NAME
+          command_timeout: 10m
+
+          script: |
+            set -eu
+
+            cd /home/ubuntu/app
+
+            export IMAGE_NAME IMAGE_TAG
+
+            docker compose pull springboot
+            docker compose up -d
+
+            echo "컨테이너 실행 확인"
+            sleep 10
+
+            if [ -z "$(docker compose ps --status running -q springboot)" ]; then
+              echo "Spring Boot 컨테이너 실행 실패"
+              docker compose logs springboot || true
               exit 1
             fi
 
             echo "사용하지 않는 이미지 정리"
             docker image prune -f
 
-            echo "배포 완료"
+            echo "배포 완료: $IMAGE_NAME:$IMAGE_TAG"

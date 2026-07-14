@@ -15,19 +15,31 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    # 통합테스트 진행됨 - 연결이 되어야 CI 통과
     services:
       mysql:
         image: mysql:9.6.0
 
         env:
-          MYSQL_ROOT_PASSWORD: ${{ secrets.CI_DB_PASSWORD }}
-          MYSQL_DATABASE: test_db
-
+          MYSQL_DATABASE: board_test
+          MYSQL_USER: board_test
+          MYSQL_PASSWORD: board_test_password
+          MYSQL_ROOT_PASSWORD: root_password
         ports:
           - 3306:3306
 
         options: >-
           --health-cmd="mysqladmin ping -h 127.0.0.1 --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=10
@@ -50,10 +62,12 @@ jobs:
           mkdir -p src/main/resources
           printf '%s' '${{ secrets.APPLICATION_YML }}' \
             > src/main/resources/application-local.yml
+          
+          
 
       - name: Grant permission and build
         env:
-          SPRING_DATASOURCE_URL: jdbc:mysql://127.0.0.1:3306/test_db
+          SPRING_DATASOURCE_URL: jdbc:mysql://54.180.213.252:3306/board_db
           SPRING_DATASOURCE_USERNAME: root
           SPRING_DATASOURCE_PASSWORD: ${{ secrets.CI_DB_PASSWORD }}
           SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
