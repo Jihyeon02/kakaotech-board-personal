@@ -7,10 +7,10 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/board_dev
+    url: ${DB_URL}
     # url: jdbc:mysql://127.0.0.1:3306/test_db
     username: root
-    password:
+    password: ${DB_PASSWORD}
     # password: ${{ secrets.CI_DB_PASSWORD }}
 
   mvc:
@@ -30,7 +30,7 @@ spring:
     database-platform: org.hibernate.dialect.MySQLDialect
     database: mysql
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
