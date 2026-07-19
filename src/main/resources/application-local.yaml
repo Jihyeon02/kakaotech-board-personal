@@ -4,9 +4,9 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://54.180.213.252:3306/board_db
+    url: jdbc:mysql://54.180.220.53:3306/board_db # kube 실습
     username: root
-    password: 'mnb1004!?!?'
+    password:
     # password: ${{ secrets.CI_DB_PASSWORD }}
 
   mvc:
