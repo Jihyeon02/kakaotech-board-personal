@@ -31,6 +31,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/v1/users/nickname/check", // 추가
             "/v1/auth/check",
             "/posts",
+            "/posts/*",
+            "/actuator/health",
+            "/actuator/health/*"
     };
 
     @Override

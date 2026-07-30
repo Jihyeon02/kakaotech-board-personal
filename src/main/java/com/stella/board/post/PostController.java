@@ -23,10 +23,7 @@ public class PostController {
         return postService.createPost(postRequestDto);
     }
 
-    @GetMapping
-    public WindowResponse getAllLists(@RequestParam(required = false) Long lastPostId) {
-        return postService.findAllPosts(lastPostId);
-    }
+    // 목록조회 api 작성해야함.
 
     @GetMapping("/{postId}")
     public PostResponseDto getOnePost(@PathVariable Long postId) {
