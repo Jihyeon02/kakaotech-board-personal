@@ -9,6 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.security.sasl.AuthenticationException;
+
 // 교재에 있는 코드
 // 로그인 처리 담당 controller
 @RestController
@@ -22,7 +25,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<LoginResponse>> login(
             @Valid @RequestBody LoginRequest loginRequest,
             HttpServletResponse httpResponse
-    ) {
+    ) throws AuthenticationException {
         // 로그인 처리
         LoginResult result = authService.login(loginRequest);
 

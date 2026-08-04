@@ -1,35 +1,75 @@
 spring:
-  profiles:
-    active: local  # ← 추가
   application:
     name: board
+
+  config:
+    import:
+      - optional:file:.env[.properties]
+
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/board_dev
-    username: root
-    password:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    # password: ${{ secrets.CI_DB_PASSWORD }}
 
-    jpa:
-      show-sql: true
-      database-platform: org.hibernate.dialect.MySQL8Dialect
-      database: mysql
+  mvc:
+    throw-exception-if-no-handler-found: true
+
+  web:
+    resources:
+      add-mappings: false
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+  jpa:
+    show-sql: ${JPA_SHOW_SQL:false}
+    database-platform: org.hibernate.dialect.MySQLDialect
+    database: mysql
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:validate}
+    properties:
       hibernate:
-        ddl-auto: validate # 이미 DB에 DDL로 테이블 설정 다 했을 경우에는 validate 처리
-      properties:
-        hibernate:
-          format_sql: true
-          use_sql_comments: true
+        format_sql: true
+        use_sql_comments: true
 
-    profiles:
-      active: development
+cloud:
+  aws:
+    s3:
+      bucket: ${AWS_BUCKET_NAME}
+    credentials:
+      access-key: ${AWS_ACCESS_KEY_ID}
+      secret-key: ${AWS_SECRET_ACCESS_KEY}
+    region:
+      static: ${AWS_REGION:ap-northeast-2}
+      auto: false
+    stack:
+      auto: false
 
-  logging:
-    level:
-      org.hibernate.SQL: debug
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
 
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+
+logging:
+  level:
+    org.hibernate.SQL: debug
 
 jwt:
-  secret: {JWT_SECRET}
+  secret: ${JWT_SECRET}
   access-token-exp-seconds: 300
   refresh-token-exp-seconds: 12096000
 

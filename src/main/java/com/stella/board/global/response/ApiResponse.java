@@ -11,11 +11,18 @@ public class ApiResponse<T> {
     private String message;
     private T data;
 
+    public ApiResponse(String success, String ok, T data) {
+    }
+
     // of() - 컨트롤러에서 ApiResponse.of("LOGIN_SUCCESS", result) 로 사용
     public static <T> ApiResponse<T> of(String message, T data) {
         ApiResponse<T> response = new ApiResponse<>();
         response.message = message;
         response.data = data;
         return response;
+    }
+
+    public static <T> ApiResponse<T> success(T data) {
+        return new ApiResponse<>("SUCCESS", "OK", data);
     }
 }

@@ -7,14 +7,12 @@ import org.springframework.http.HttpStatus;
 @Getter
 public class tempException extends RuntimeException{
     // AuthorizedException에 필요한 속성들 다 정의
-    private final String code;
     private final HttpStatus status;
     // 이걸 만들어 쓰다보니 Errorcode에 대한 클래스도 필요했음-> global/Errcode.java
     private final ErrorCode errorCode;
 
     // 생성자 <- AuthorizedException에서 상속해서 사용할 수 있도록 만듦
-    public tempException(String code, HttpStatus status, ErrorCode errorCode) {
-        this.code = code;
+    public tempException(HttpStatus status, ErrorCode errorCode) {
         this.status = status;
         this.errorCode = errorCode;
     }
