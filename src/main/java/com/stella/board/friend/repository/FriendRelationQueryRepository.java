@@ -1,15 +1,15 @@
 package com.stella.board.friend.repository;
 
-import com.stella.board.user.User;
+import com.stella.board.friend.dto.FriendResponse;
 
 import java.util.List;
 
 public interface FriendRelationQueryRepository {
 
     boolean existsRelation(
-            Long userId1,
-            Long userId2
+            Long ownerId,
+            Long friendId
     );
 
-    List<User> findFriends(Long userId);
+    List<FriendResponse> findFriends(Long ownerId);
 }

@@ -33,7 +33,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/posts",
             "/posts/*",
             "/actuator/health",
-            "/actuator/health/*"
+            "/actuator/health/*",
+            "/friend/*",
     };
 
     @Override

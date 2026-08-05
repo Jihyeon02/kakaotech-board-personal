@@ -4,7 +4,9 @@ import com.stella.board.friend.FriendApplying;
 import com.stella.board.friend.FriendRelation;
 import com.stella.board.friend.RequestStatus;
 import com.stella.board.friend.dto.FriendRequestCacheRow;
+import com.stella.board.friend.dto.FriendRequestCreatedResponse;
 import com.stella.board.friend.dto.FriendRequestResponse;
+import com.stella.board.friend.dto.FriendResponse;
 import com.stella.board.friend.event.FriendRequestCreatedEvent;
 import com.stella.board.friend.event.FriendRequestRemovedEvent;
 import com.stella.board.friend.repository.FriendApplyingRepository;
@@ -17,11 +19,12 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class FriendRequestService {
+public class FriendService {
 
     private final UserRepository userRepository;
     private final FriendApplyingRepository applyingRepository;
@@ -33,7 +36,7 @@ public class FriendRequestService {
      * 친구 신청 전송.
      */
     @Transactional
-    public void sendRequest(
+    public FriendRequestCreatedResponse sendRequest(
             Long senderId,
             Long receiverId
     ) {
@@ -54,12 +57,11 @@ public class FriendRequestService {
                 );
 
         boolean alreadyWaiting =
-                applyingRepository
-                        .existsRequest(
-                                senderId,
-                                receiverId,
-                                RequestStatus.WAITING
-                        );
+                applyingRepository.existsRequest(
+                        senderId,
+                        receiverId,
+                        RequestStatus.WAITING
+                );
 
         if (alreadyWaiting) {
             throw new IllegalStateException(
@@ -68,12 +70,11 @@ public class FriendRequestService {
         }
 
         boolean reverseRequestExists =
-                applyingRepository
-                        .existsRequest(
-                                receiverId,
-                                senderId,
-                                RequestStatus.WAITING
-                        );
+                applyingRepository.existsRequest(
+                        receiverId,
+                        senderId,
+                        RequestStatus.WAITING
+                );
 
         if (reverseRequestExists) {
             throw new IllegalStateException(
@@ -91,16 +92,24 @@ public class FriendRequestService {
         }
 
         FriendApplying application =
-                FriendApplying.create(sender, receiver);
+                FriendApplying.create(
+                        sender,
+                        receiver
+                );
 
-        applyingRepository.save(application);
+        FriendApplying savedApplication =
+                applyingRepository.save(application);
 
         eventPublisher.publishEvent(
                 new FriendRequestCreatedEvent(
                         receiverId,
                         senderId,
-                        application.getRequestedAt()
+                        savedApplication.getRequestedAt()
                 )
+        );
+
+        return FriendRequestCreatedResponse.from(
+                savedApplication
         );
     }
 
@@ -129,6 +138,8 @@ public class FriendRequestService {
                 receiverId,
                 dbRows
         );
+
+
 
         return dbRows.stream()
                 .map(row ->
@@ -168,12 +179,29 @@ public class FriendRequestService {
 
         application.accept();
 
-        FriendRelation relation = FriendRelation.create(
-                application.getSender(),
-                application.getReceiver()
+        User sender = application.getSender();
+        User receiver = application.getReceiver();
+
+        LocalDateTime createdAt = LocalDateTime.now();
+
+        // 양방향 저장 -> sender, receiver 모두 저장
+        List<FriendRelation> relations = List.of(
+                FriendRelation.create(
+                        sender,
+                        receiver,
+                        createdAt
+                ),
+                FriendRelation.create(
+                        receiver,
+                        sender,
+                        createdAt
+                )
         );
 
-        relationRepository.save(relation);
+        relationRepository.saveAll(relations);
+
+        // FriendApplying애서 해당 컬럼 삭제
+
 
         eventPublisher.publishEvent(
                 new FriendRequestRemovedEvent(
@@ -217,6 +245,17 @@ public class FriendRequestService {
                         senderId
                 )
         );
+    }
+
+    @Transactional(readOnly = true)
+    public List<FriendResponse> getFriends(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new IllegalArgumentException(
+                    "사용자를 찾을 수 없습니다."
+            );
+        }
+
+        return relationRepository.findFriends(userId);
     }
 
     private void validateDifferentUsers(

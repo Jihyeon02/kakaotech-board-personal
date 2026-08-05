@@ -1,8 +1,8 @@
 package com.stella.board.friend.repository;
 
-import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.stella.board.user.User;
+import com.stella.board.friend.dto.FriendResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -19,18 +19,15 @@ public class FriendRelationQueryRepositoryImpl
 
     @Override
     public boolean existsRelation(
-            Long userId1,
-            Long userId2
+            Long ownerId,
+            Long friendId
     ) {
-        Long userAId = Math.min(userId1, userId2);
-        Long userBId = Math.max(userId1, userId2);
-
         Integer result = queryFactory
                 .selectOne()
                 .from(friendRelation)
                 .where(
-                        friendRelation.userA.user_id.eq(userAId),
-                        friendRelation.userB.user_id.eq(userBId)
+                        friendRelation.owner.user_id.eq(ownerId),
+                        friendRelation.friend.user_id.eq(friendId)
                 )
                 .fetchFirst();
 
@@ -38,24 +35,23 @@ public class FriendRelationQueryRepositoryImpl
     }
 
     @Override
-    public List<User> findFriends(Long userId) {
+    public List<FriendResponse> findFriends(Long ownerId) {
         return queryFactory
                 .select(
-                        new CaseBuilder()
-                                .when(
-                                        friendRelation.userA.user_id
-                                                .eq(userId)
-                                )
-                                .then(friendRelation.userB)
-                                .otherwise(friendRelation.userA)
+                        Projections.constructor(
+                                FriendResponse.class,
+                                friendRelation.friend.user_id,
+                                friendRelation.friend.nickname,
+                                friendRelation.friend.profile_imageUrl,
+                                friendRelation.createdAt
+                        )
                 )
                 .from(friendRelation)
                 .where(
-                        friendRelation.userA.user_id.eq(userId)
-                                .or(
-                                        friendRelation.userB.user_id
-                                                .eq(userId)
-                                )
+                        friendRelation.owner.user_id.eq(ownerId)
+                )
+                .orderBy(
+                        friendRelation.createdAt.desc()
                 )
                 .fetch();
     }

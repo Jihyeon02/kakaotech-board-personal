@@ -13,7 +13,8 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${DB_URL}
     username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    password:
+    # ${DB_PASSWORD}
     # password: ${{ secrets.CI_DB_PASSWORD }}
 
   mvc:
