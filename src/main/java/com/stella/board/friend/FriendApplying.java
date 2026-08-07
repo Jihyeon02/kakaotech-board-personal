@@ -9,7 +9,19 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "friend_applying")
+@Table(
+        name = "friend_applying",
+        indexes = {
+                @Index(
+                        name = "idx_friend_applying_receiver_status_requested",
+                        columnList = "receiver_id, status, requested_at"
+                ),
+                @Index(
+                        name = "idx_friend_applying_sender_status_requested",
+                        columnList = "sender_id, status, requested_at"
+                )
+        }
+)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FriendApplying {

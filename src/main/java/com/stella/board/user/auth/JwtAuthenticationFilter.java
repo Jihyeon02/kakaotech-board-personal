@@ -1,5 +1,7 @@
 package com.stella.board.user.auth;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -7,41 +9,21 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.util.PatternMatchUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-// 교재에 있던 코드
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
-
-    private static final String[] WHITE_LIST = {
-            "/v1/*",
-            "/v1/users/*",
-            "/users",
-            "/users/login",
-            "/users/token/refresh",
-            "/users/members",
-            "/v1/users/members",        // 추가
-            "/v1/users/email/check",    // 추가
-            "/v1/users/nickname/check", // 추가
-            "/v1/auth/check",
-            "/posts",
-            "/posts/*",
-            "/actuator/health",
-            "/actuator/health/*",
-            "/friend/*",
-    };
-
-    @Override
-    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
-        String uri = request.getRequestURI(); // 쿼리스트링 제외한 경로만
-        return PatternMatchUtils.simpleMatch(WHITE_LIST, uri);
-    }
 
     @Override
     protected void doFilterInternal(
@@ -50,32 +32,50 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-
-
-        // 토큰이 없거나 형식이 틀리면 401
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        // 공개 API 여부는 SecurityConfig가 판단한다. 토큰이 없으면 익명 상태로 통과시킨다.
+        if (authorization == null || !authorization.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
             return;
         }
 
-        String token = authHeader.substring(7);
+        String token = authorization.substring(7);
 
         try {
-            // 토큰 서명 + 만료 검증
-            jwtProvider.parse(token);
+            // 한 번의 파싱으로 서명/만료 검증과 claim 추출을 함께 처리한다.
+            Jws<Claims> parsedToken = jwtProvider.parse(token);
+            Claims claims = parsedToken.getPayload();
 
-            // access 토큰인지 확인
-            if (!jwtProvider.isAccessToken(token)) {
-                throw new IllegalArgumentException("Not access token");
+            if (!"access".equals(claims.get("typ", String.class))) {
+                throw new IllegalArgumentException("Access Token이 아닙니다.");
             }
 
-            // 여기서는 인증 정보 전달 없이 통과만 시킴
-            filterChain.doFilter(request, response);
+            AuthenticatedUser principal = new AuthenticatedUser(
+                    Long.valueOf(claims.getSubject()),
+                    claims.get("email", String.class),
+                    claims.get("nickname", String.class)
+            );
 
+            UsernamePasswordAuthenticationToken authentication =
+                    UsernamePasswordAuthenticationToken.authenticated(
+                            principal,
+                            null,
+                            List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                    );
+
+            SecurityContext context = SecurityContextHolder.createEmptyContext();
+            context.setAuthentication(authentication);
+            SecurityContextHolder.setContext(context);
         } catch (Exception exception) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            SecurityContextHolder.clearContext();
+            response.sendError(
+                    HttpServletResponse.SC_UNAUTHORIZED,
+                    "유효하지 않은 인증 토큰입니다."
+            );
+            return;
         }
+
+        filterChain.doFilter(request, response);
     }
 }

@@ -29,6 +29,12 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
 
+  cache:
+    type: redis
+    redis:
+      time-to-live: 10m
+      cache-null-values: false
+
   jpa:
     show-sql: ${JPA_SHOW_SQL:false}
     database-platform: org.hibernate.dialect.MySQLDialect
