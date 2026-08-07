@@ -13,7 +13,8 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${DB_URL}
     username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    password:
+    # ${DB_PASSWORD}
     # password: ${{ secrets.CI_DB_PASSWORD }}
 
   mvc:
@@ -28,12 +29,18 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
 
+  cache:
+    type: redis
+    redis:
+      time-to-live: 10m
+      cache-null-values: false
+
   jpa:
     show-sql: ${JPA_SHOW_SQL:false}
     database-platform: org.hibernate.dialect.MySQLDialect
     database: mysql
     hibernate:
-      ddl-auto: ${JPA_DDL_AUTO:validate}
+      ddl-auto: ${JPA_DDL_AUTO:update}
     properties:
       hibernate:
         format_sql: true
