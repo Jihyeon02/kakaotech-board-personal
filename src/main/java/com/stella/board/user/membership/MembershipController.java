@@ -4,6 +4,7 @@ import com.stella.board.user.User;
 import com.stella.board.user.membership.dto.MembershipDto;
 import com.stella.board.user.membership.dto.MembershipReqDto;
 import com.stella.board.user.membership.dto.MembershipUpdateReq;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +19,7 @@ public class MembershipController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public MembershipDto createMembership(@RequestBody  MembershipReqDto membershipReqDto) {
         return membershipService.save(membershipReqDto);
     }
@@ -39,4 +41,3 @@ public class MembershipController {
     }
 
 }
-

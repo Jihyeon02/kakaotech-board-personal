@@ -1,9 +1,12 @@
 package com.stella.board.post;
 
 import com.stella.board.post.dto.PostRequestDto;
+import com.stella.board.post.dto.PostListResponseDto;
 import com.stella.board.post.dto.PostResponseDto;
 import com.stella.board.post.repository.PostRepository;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +31,12 @@ public class PostService {
                 );
 
         return PostResponseDto.from(post);
+    }
+
+    public Slice<PostListResponseDto> findPosts(Pageable pageable) {
+        return postRepository
+                .findAllByOrderByCreatedTimeDescPostIdDesc(pageable)
+                .map(PostListResponseDto::from);
     }
 
     @Transactional
