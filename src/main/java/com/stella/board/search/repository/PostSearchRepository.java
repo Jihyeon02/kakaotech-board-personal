@@ -4,8 +4,10 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.NumberExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.stella.board.post.dto.PostListResponseDto;
+import com.stella.board.postImage.QPostImage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 import static com.stella.board.post.QPost.post;
+import static com.stella.board.user.QUser.user;
 
 @Repository
 @RequiredArgsConstructor
@@ -28,18 +31,37 @@ public class PostSearchRepository {
             Pageable pageable
     ) {
         int pageSize = pageable.getPageSize();
+        QPostImage firstImage = new QPostImage("firstImage");
+        QPostImage imageForMinSort = new QPostImage("imageForMinSort");
 
         List<PostListResponseDto> results = queryFactory
                 .select(Projections.constructor(
                         PostListResponseDto.class,
                         post.postId,
                         post.userId,
+                        user.nickname,
+                        user.profile_imageUrl,
                         post.title,
                         post.summary,
-                        post.thumbnailUrl,
+                        firstImage.imageUrl.coalesce(post.thumbnailUrl),
                         post.createdTime
                 ))
                 .from(post)
+                .leftJoin(user)
+                .on(user.user_id.eq(post.userId))
+                .leftJoin(firstImage)
+                .on(
+                        firstImage.post.postId.eq(post.postId)
+                                .and(firstImage.sortOrder.eq(
+                                        JPAExpressions
+                                                .select(imageForMinSort.sortOrder.min())
+                                                .from(imageForMinSort)
+                                                .where(
+                                                        imageForMinSort.post.postId
+                                                                .eq(post.postId)
+                                                )
+                                ))
+                )
                 .where(
                         containsKeyword(keyword),
                         authoredBy(authorId)

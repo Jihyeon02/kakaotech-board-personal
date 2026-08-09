@@ -20,6 +20,21 @@ public interface PostImageRepository
     );
 
     @Query("""
+            select pi
+            from PostImage pi
+            where pi.post.postId in :postIds
+              and pi.sortOrder = (
+                  select min(firstImage.sortOrder)
+                  from PostImage firstImage
+                  where firstImage.post.postId = pi.post.postId
+              )
+            order by pi.post.postId asc, pi.id asc
+            """)
+    List<PostImage> findFirstImagesByPostIds(
+            @Param("postIds") List<Long> postIds
+    );
+
+    @Query("""
             select coalesce(max(pi.sortOrder), -1)
             from PostImage pi
             where pi.post.id = :postId
