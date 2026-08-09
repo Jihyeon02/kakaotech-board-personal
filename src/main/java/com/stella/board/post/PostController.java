@@ -1,13 +1,15 @@
 package com.stella.board.post;
 
 import com.stella.board.post.dto.PostRequestDto;
+import com.stella.board.post.dto.PostListResponseDto;
 import com.stella.board.post.dto.PostResponseDto;
 
-import com.stella.board.post.dto.WindowResponse;
-import org.springframework.data.domain.KeysetScrollPosition;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/posts")
@@ -19,13 +21,18 @@ public class PostController {
     }
 
     @PostMapping
-    public PostResponseDto post(@RequestBody PostRequestDto postRequestDto) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public PostResponseDto post(
+            @Valid @RequestBody PostRequestDto postRequestDto
+    ) {
         return postService.createPost(postRequestDto);
     }
 
     @GetMapping
-    public WindowResponse getAllLists(@RequestParam(required = false) Long lastPostId) {
-        return postService.findAllPosts(lastPostId);
+    public Slice<PostListResponseDto> getPosts(
+            @PageableDefault(size = 5) Pageable pageable
+    ) {
+        return postService.findPosts(pageable);
     }
 
     @GetMapping("/{postId}")
@@ -34,7 +41,10 @@ public class PostController {
     }
 
     @PutMapping("/{postId}")
-    public PostResponseDto updatePost(@PathVariable Long postId,@RequestBody PostRequestDto postRequestDto) {
+    public PostResponseDto updatePost(
+            @PathVariable Long postId,
+            @Valid @RequestBody PostRequestDto postRequestDto
+    ) {
         return postService.updatePost(postId, postRequestDto);
     }
 

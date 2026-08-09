@@ -50,9 +50,10 @@ public class GlobalExceptionHandler {
     }
 
     // 공통 예외처리 - 서버측 오류 -> 서버측 오류면 어디서 어떻게 오류가 낫는지 로그에 기록이 남아야 추적할 수 있으므로 log처리도 넣어둠.
+    @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception ex) {
         ErrorResponse response = new ErrorResponse(INTERNAL_SERVER_ERROR, LocalDateTime.now(), ex.getMessage());
-        log.error(ex.getMessage(), ex.getStackTrace());
+        log.error("처리되지 않은 서버 오류", ex);
         return new ResponseEntity<>(response,  HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
