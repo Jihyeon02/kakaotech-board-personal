@@ -1,0 +1,9 @@
+[Unit]
+Description=Publish MySQL USE metrics to the local CloudWatch Agent StatsD listener
+Requires=docker.service
+After=docker.service amazon-cloudwatch-agent.service
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/sysbench-monitor/mysql.env
+ExecStart=/usr/local/bin/cw-mysql-stats.sh

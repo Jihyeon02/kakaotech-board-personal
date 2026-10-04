@@ -1,0 +1,7 @@
+[Unit]
+Description=Publish USE host metrics to the local CloudWatch Agent StatsD listener
+After=amazon-cloudwatch-agent.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/cw-host-stats.sh

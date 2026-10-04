@@ -1,6 +1,8 @@
 package com.stella.board.post.repository;
 
 import com.stella.board.post.Post;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -17,6 +19,10 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     // 전체 조회용 메서드
     List<Post> findAll();
+
+    Slice<Post> findAllByOrderByCreatedTimeDescPostIdDesc(
+            Pageable pageable
+    );
 
     @Override
     <S extends Post> S save(S entity);
