@@ -1,0 +1,228 @@
+{
+  "start": "-PT3H",
+  "periodOverride": "inherit",
+  "variables": [
+    {
+      "type": "property",
+      "property": "VolumeId",
+      "inputType": "select",
+      "id": "dbVolume",
+      "label": "DB EBS Volume",
+      "visible": true,
+      "search": "{AWS/EBS,VolumeId} MetricName=\"VolumeReadOps\"",
+      "populateFrom": "VolumeId",
+      "defaultValue": "__FIRST"
+    }
+  ],
+  "widgets": [
+    {
+      "type": "text", "x": 0, "y": 0, "width": 24, "height": 2,
+      "properties": {
+        "markdown": "# Sysbench USE Dashboard\nDB: `i-0d2e3e1fab69e7046` · Load generator: `i-0ae73fa4e069816b4` · Select the DB EBS volume above."
+      }
+    },
+    {
+      "type": "metric", "x": 0, "y": 2, "width": 8, "height": 6,
+      "properties": {
+        "view": "timeSeries", "stacked": false, "region": "ap-northeast-2", "period": 60,
+        "title": "CPU Utilization (%)",
+        "metrics": [
+          ["Sysbench/USE", "cpu_usage_active", "InstanceId", "i-0d2e3e1fab69e7046", {"label": "DB active"}],
+          ["Sysbench/USE", "cpu_usage_active", "InstanceId", "i-0ae73fa4e069816b4", {"label": "LoadGen active"}]
+        ],
+        "yAxis": {"left": {"min": 0, "max": 100}}
+      }
+    },
+    {
+      "type": "metric", "x": 8, "y": 2, "width": 8, "height": 6,
+      "properties": {
+        "view": "timeSeries", "stacked": false, "region": "ap-northeast-2", "period": 60,
+        "title": "CPU Saturation",
+        "metrics": [
+          ["Sysbench/USE", "system_load1", "InstanceId", "i-0d2e3e1fab69e7046", {"label": "DB load1"}],
+          ["Sysbench/USE", "processes_running", "InstanceId", "i-0d2e3e1fab69e7046", {"label": "DB runnable"}],
+          ["Sysbench/USE", "system_load1", "InstanceId", "i-0ae73fa4e069816b4", {"label": "LoadGen load1"}],
+          ["Sysbench/USE", "processes_running", "InstanceId", "i-0ae73fa4e069816b4", {"label": "LoadGen runnable"}]
+        ]
+      }
+    },
+    {
+      "type": "metric", "x": 16, "y": 2, "width": 8, "height": 6,
+      "properties": {
+        "view": "timeSeries", "stacked": false, "region": "ap-northeast-2", "period": 60,
+        "title": "CPU iowait / steal (%)",
+        "metrics": [
+          ["Sysbench/USE", "cpu_usage_iowait", "InstanceId", "i-0d2e3e1fab69e7046", {"label": "DB iowait"}],
+          ["Sysbench/USE", "cpu_usage_steal", "InstanceId", "i-0d2e3e1fab69e7046", {"label": "DB steal"}],
+          ["Sysbench/USE", "cpu_usage_iowait", "InstanceId", "i-0ae73fa4e069816b4", {"label": "LoadGen iowait"}],
+          ["Sysbench/USE", "cpu_usage_steal", "InstanceId", "i-0ae73fa4e069816b4", {"label": "LoadGen steal"}]
+        ],
+        "yAxis": {"left": {"min": 0, "max": 100}}
+      }
+    },
+    {
+      "type": "metric", "x": 0, "y": 8, "width": 8, "height": 6,
+      "properties": {
+        "view": "timeSeries", "stacked": false, "region": "ap-northeast-2", "period": 60,
+        "title": "Available RAM (GiB)",
+        "metrics": [
+          [{"expression": "dbmem/1073741824", "label": "DB available", "id": "edbmem"}],
+          [{"expression": "lgmem/1073741824", "label": "LoadGen available", "id": "elgmem"}],
+          ["Sysbench/USE", "mem_available", "InstanceId", "i-0d2e3e1fab69e7046", {"id": "dbmem", "visible": false}],
+          ["Sysbench/USE", "mem_available", "InstanceId", "i-0ae73fa4e069816b4", {"id": "lgmem", "visible": false}]
+        ]
+      }
+    },
+    {
+      "type": "metric", "x": 8, "y": 8, "width": 8, "height": 6,
+      "properties": {
+        "view": "timeSeries", "stacked": false, "region": "ap-northeast-2", "period": 60,
+        "title": "Swap I/O (bytes/s)",
+        "metrics": [
+          ["Sysbench/USE", "swap_in_bytes_per_sec", "InstanceId", "i-0d2e3e1fab69e7046", {"label": "DB swap in"}],
+          ["Sysbench/USE", "swap_out_bytes_per_sec", "InstanceId", "i-0d2e3e1fab69e7046", {"label": "DB swap out"}],
+          ["Sysbench/USE", "swap_in_bytes_per_sec", "InstanceId", "i-0ae73fa4e069816b4", {"label": "LoadGen swap in"}],
+          ["Sysbench/USE", "swap_out_bytes_per_sec", "InstanceId", "i-0ae73fa4e069816b4", {"label": "LoadGen swap out"}]
+        ]
+      }
+    },
+    {
+      "type": "metric", "x": 16, "y": 8, "width": 8, "height": 6,
+      "properties": {
+        "view": "timeSeries", "stacked": false, "region": "ap-northeast-2", "period": 60,
+        "title": "Network (MiB/s)",
+        "metrics": [
+          [{"expression": "dbin/60/1048576", "label": "DB in", "id": "edbin"}],
+          [{"expression": "dbout/60/1048576", "label": "DB out", "id": "edbout"}],
+          [{"expression": "lgin/60/1048576", "label": "LoadGen in", "id": "elgin"}],
+          [{"expression": "lgout/60/1048576", "label": "LoadGen out", "id": "elgout"}],
+          ["AWS/EC2", "NetworkIn", "InstanceId", "i-0d2e3e1fab69e7046", {"id": "dbin", "stat": "Sum", "visible": false}],
+          ["AWS/EC2", "NetworkOut", "InstanceId", "i-0d2e3e1fab69e7046", {"id": "dbout", "stat": "Sum", "visible": false}],
+          ["AWS/EC2", "NetworkIn", "InstanceId", "i-0ae73fa4e069816b4", {"id": "lgin", "stat": "Sum", "visible": false}],
+          ["AWS/EC2", "NetworkOut", "InstanceId", "i-0ae73fa4e069816b4", {"id": "lgout", "stat": "Sum", "visible": false}]
+        ]
+      }
+    },
+    {
+      "type": "metric", "x": 0, "y": 14, "width": 8, "height": 6,
+      "properties": {
+        "view": "timeSeries", "stacked": false, "region": "ap-northeast-2", "period": 60,
+        "title": "EBS IOPS",
+        "metrics": [
+          [{"expression": "rops/60", "label": "Read IOPS", "id": "eriops"}],
+          [{"expression": "wops/60", "label": "Write IOPS", "id": "ewiops"}],
+          ["AWS/EBS", "VolumeReadOps", "VolumeId", "vol-SELECT-DB-VOLUME", {"id": "rops", "stat": "Sum", "visible": false}],
+          ["AWS/EBS", "VolumeWriteOps", "VolumeId", "vol-SELECT-DB-VOLUME", {"id": "wops", "stat": "Sum", "visible": false}]
+        ]
+      }
+    },
+    {
+      "type": "metric", "x": 8, "y": 14, "width": 8, "height": 6,
+      "properties": {
+        "view": "timeSeries", "stacked": false, "region": "ap-northeast-2", "period": 60,
+        "title": "EBS Throughput (MiB/s)",
+        "metrics": [
+          [{"expression": "rbytes/60/1048576", "label": "Read MiB/s", "id": "erbytes"}],
+          [{"expression": "wbytes/60/1048576", "label": "Write MiB/s", "id": "ewbytes"}],
+          ["AWS/EBS", "VolumeReadBytes", "VolumeId", "vol-SELECT-DB-VOLUME", {"id": "rbytes", "stat": "Sum", "visible": false}],
+          ["AWS/EBS", "VolumeWriteBytes", "VolumeId", "vol-SELECT-DB-VOLUME", {"id": "wbytes", "stat": "Sum", "visible": false}]
+        ]
+      }
+    },
+    {
+      "type": "metric", "x": 16, "y": 14, "width": 8, "height": 6,
+      "properties": {
+        "view": "timeSeries", "stacked": false, "region": "ap-northeast-2", "period": 60,
+        "title": "EBS Latency / Queue / Busy",
+        "metrics": [
+          [{"expression": "IF(ro>0,rt/ro*1000,0)", "label": "Read latency ms", "id": "erlat"}],
+          [{"expression": "IF(wo>0,wt/wo*1000,0)", "label": "Write latency ms", "id": "ewlat"}],
+          ["AWS/EBS", "VolumeQueueLength", "VolumeId", "vol-SELECT-DB-VOLUME", {"label": "Queue length", "stat": "Average"}],
+          [{"expression": "IF(idle<60,100*(1-idle/60),0)", "label": "Busy %", "id": "ebusy", "yAxis": "right"}],
+          ["AWS/EBS", "VolumeReadOps", "VolumeId", "vol-SELECT-DB-VOLUME", {"id": "ro", "stat": "Sum", "visible": false}],
+          ["AWS/EBS", "VolumeTotalReadTime", "VolumeId", "vol-SELECT-DB-VOLUME", {"id": "rt", "stat": "Sum", "visible": false}],
+          ["AWS/EBS", "VolumeWriteOps", "VolumeId", "vol-SELECT-DB-VOLUME", {"id": "wo", "stat": "Sum", "visible": false}],
+          ["AWS/EBS", "VolumeTotalWriteTime", "VolumeId", "vol-SELECT-DB-VOLUME", {"id": "wt", "stat": "Sum", "visible": false}],
+          ["AWS/EBS", "VolumeIdleTime", "VolumeId", "vol-SELECT-DB-VOLUME", {"id": "idle", "stat": "Sum", "visible": false}]
+        ],
+        "yAxis": {"right": {"min": 0, "max": 100, "label": "Busy %"}}
+      }
+    },
+    {
+      "type": "metric", "x": 0, "y": 20, "width": 8, "height": 6,
+      "properties": {
+        "view": "timeSeries", "stacked": false, "region": "ap-northeast-2", "period": 60,
+        "title": "EBS Limit / Error Checks",
+        "metrics": [
+          ["AWS/EBS", "VolumeIOPSExceededCheck", "VolumeId", "vol-SELECT-DB-VOLUME", {"label": "IOPS exceeded", "stat": "Maximum"}],
+          ["AWS/EBS", "VolumeThroughputExceededCheck", "VolumeId", "vol-SELECT-DB-VOLUME", {"label": "Throughput exceeded", "stat": "Maximum"}],
+          ["AWS/EBS", "VolumeStalledIOCheck", "VolumeId", "vol-SELECT-DB-VOLUME", {"label": "Stalled I/O", "stat": "Maximum"}]
+        ],
+        "yAxis": {"left": {"min": 0, "max": 1}}
+      }
+    },
+    {
+      "type": "metric", "x": 8, "y": 20, "width": 8, "height": 6,
+      "properties": {
+        "view": "timeSeries", "stacked": false, "region": "ap-northeast-2", "period": 60,
+        "title": "Filesystem Capacity (%)",
+        "metrics": [
+          ["Sysbench/USE", "disk_used_percent", "InstanceId", "i-0d2e3e1fab69e7046", {"label": "DB root filesystem"}]
+        ],
+        "yAxis": {"left": {"min": 0, "max": 100}}
+      }
+    },
+    {
+      "type": "metric", "x": 16, "y": 20, "width": 8, "height": 6,
+      "properties": {
+        "view": "timeSeries", "stacked": false, "region": "ap-northeast-2", "period": 60,
+        "title": "MySQL Buffer Pool (%) / Waits",
+        "metrics": [
+          [{"expression": "IF(RATE(bpreq)>0,100*RATE(bpread)/RATE(bpreq),0)", "label": "Miss ratio %", "id": "emiss"}],
+          [{"expression": "IF(bptotal>0,100*bpfree/bptotal,0)", "label": "Free pages %", "id": "efreepct"}],
+          [{"expression": "IF(bptotal>0,100*bpdirty/bptotal,0)", "label": "Dirty pages %", "id": "edirtypct"}],
+          [{"expression": "60*IF(RATE(bpwait)>0,RATE(bpwait),0)", "label": "Wait-free events/min", "id": "ewaitfree", "yAxis": "right"}],
+          ["Sysbench/USE", "mysql_buffer_pool_reads", "InstanceId", "i-0d2e3e1fab69e7046", {"id": "bpread", "visible": false}],
+          ["Sysbench/USE", "mysql_buffer_pool_read_requests", "InstanceId", "i-0d2e3e1fab69e7046", {"id": "bpreq", "visible": false}],
+          ["Sysbench/USE", "mysql_buffer_pool_pages_free", "InstanceId", "i-0d2e3e1fab69e7046", {"id": "bpfree", "visible": false}],
+          ["Sysbench/USE", "mysql_buffer_pool_pages_dirty", "InstanceId", "i-0d2e3e1fab69e7046", {"id": "bpdirty", "visible": false}],
+          ["Sysbench/USE", "mysql_buffer_pool_pages_total", "InstanceId", "i-0d2e3e1fab69e7046", {"id": "bptotal", "visible": false}],
+          ["Sysbench/USE", "mysql_buffer_pool_wait_free", "InstanceId", "i-0d2e3e1fab69e7046", {"id": "bpwait", "visible": false}]
+        ],
+        "yAxis": {"left": {"min": 0, "max": 100}, "right": {"min": 0}}
+      }
+    },
+    {
+      "type": "metric", "x": 0, "y": 26, "width": 12, "height": 6,
+      "properties": {
+        "view": "timeSeries", "stacked": false, "region": "ap-northeast-2", "period": 60,
+        "title": "MySQL Pending I/O / Log Waits",
+        "metrics": [
+          ["Sysbench/USE", "mysql_data_pending_reads", "InstanceId", "i-0d2e3e1fab69e7046", {"label": "Pending reads"}],
+          ["Sysbench/USE", "mysql_data_pending_writes", "InstanceId", "i-0d2e3e1fab69e7046", {"label": "Pending writes"}],
+          ["Sysbench/USE", "mysql_data_pending_fsyncs", "InstanceId", "i-0d2e3e1fab69e7046", {"label": "Pending fsyncs"}],
+          [{"expression": "60*IF(RATE(logwait)>0,RATE(logwait),0)", "label": "Log waits/min", "id": "elogwait"}],
+          ["Sysbench/USE", "mysql_log_waits", "InstanceId", "i-0d2e3e1fab69e7046", {"id": "logwait", "visible": false}]
+        ]
+      }
+    },
+    {
+      "type": "metric", "x": 12, "y": 26, "width": 12, "height": 6,
+      "properties": {
+        "view": "timeSeries", "stacked": false, "region": "ap-northeast-2", "period": 60,
+        "title": "MySQL Threads / Row Locks / Deadlocks",
+        "metrics": [
+          ["Sysbench/USE", "mysql_threads_running", "InstanceId", "i-0d2e3e1fab69e7046", {"label": "Threads running"}],
+          ["Sysbench/USE", "mysql_threads_connected", "InstanceId", "i-0d2e3e1fab69e7046", {"label": "Threads connected"}],
+          ["Sysbench/USE", "mysql_row_lock_current_waits", "InstanceId", "i-0d2e3e1fab69e7046", {"label": "Current row-lock waits"}],
+          [{"expression": "60*IF(RATE(rowwait)>0,RATE(rowwait),0)", "label": "Row-lock waits/min", "id": "erowwait"}],
+          [{"expression": "IF(RATE(rowwait)>0,RATE(rowtime)/RATE(rowwait),0)", "label": "Avg row-lock wait ms", "id": "erowtime"}],
+          [{"expression": "60*IF(RATE(deadlock)>0,RATE(deadlock),0)", "label": "Deadlocks/min", "id": "edeadlock"}],
+          ["Sysbench/USE", "mysql_row_lock_waits", "InstanceId", "i-0d2e3e1fab69e7046", {"id": "rowwait", "visible": false}],
+          ["Sysbench/USE", "mysql_row_lock_time_ms", "InstanceId", "i-0d2e3e1fab69e7046", {"id": "rowtime", "visible": false}],
+          ["Sysbench/USE", "mysql_deadlocks", "InstanceId", "i-0d2e3e1fab69e7046", {"id": "deadlock", "visible": false}]
+        ]
+      }
+    }
+  ]
+}

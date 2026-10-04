@@ -1,0 +1,17 @@
+# Keep this file private because it contains the benchmark user's password.
+db-driver=mysql
+mysql-host=REPLACE_WITH_DB_PRIVATE_IP
+mysql-port=3306
+mysql-user=sysbench
+mysql-password=REPLACE_WITH_SYSBENCH_PASSWORD
+mysql-db=sbtest
+mysql-storage-engine=innodb
+
+# Keep these values identical for every EC2 instance-type comparison.
+tables=8
+table-size=500000
+rand-type=uniform
+rand-seed=1
+report-interval=10
+percentile=99
+events=0

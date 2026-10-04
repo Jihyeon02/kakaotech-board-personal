@@ -1,0 +1,45 @@
+{
+  "agent": {
+    "metrics_collection_interval": 60,
+    "region": "ap-northeast-2",
+    "run_as_user": "root"
+  },
+  "metrics": {
+    "namespace": "Sysbench/USE",
+    "append_dimensions": {
+      "InstanceId": "${aws:InstanceId}"
+    },
+    "aggregation_dimensions": [["InstanceId"]],
+    "metrics_collected": {
+      "cpu": {
+        "measurement": [
+          "cpu_usage_active",
+          "cpu_usage_iowait",
+          "cpu_usage_steal"
+        ],
+        "totalcpu": true,
+        "metrics_collection_interval": 60,
+        "drop_original_metrics": [
+          "cpu_usage_active",
+          "cpu_usage_iowait",
+          "cpu_usage_steal"
+        ]
+      },
+      "mem": {
+        "measurement": ["mem_available"],
+        "metrics_collection_interval": 60,
+        "drop_original_metrics": ["mem_available"]
+      },
+      "processes": {
+        "measurement": ["processes_running"],
+        "metrics_collection_interval": 60,
+        "drop_original_metrics": ["processes_running"]
+      },
+      "statsd": {
+        "service_address": "127.0.0.1:8125",
+        "metrics_collection_interval": 10,
+        "metrics_aggregation_interval": 60
+      }
+    }
+  }
+}

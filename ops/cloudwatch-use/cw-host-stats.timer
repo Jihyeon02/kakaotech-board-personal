@@ -1,0 +1,11 @@
+[Unit]
+Description=Collect USE host metrics every minute
+
+[Timer]
+OnBootSec=30s
+OnUnitActiveSec=60s
+AccuracySec=1s
+Persistent=true
+
+[Install]
+WantedBy=timers.target
